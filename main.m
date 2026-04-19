@@ -6,6 +6,8 @@ addpath¥"experiments"¤;
 
 [X« Y« classnames] = load_vertebral_dataset¥"data/column_3C©dat"¤;
 
+
+%¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬KNN Execution¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
 k_values = 1:5;
 
 results_knn = exp_knn¥X« Y« k_values¤;
@@ -20,3 +22,29 @@ for i = 1:length¥results_knn¤
     sprintf¥"KNN Confusion Matrix ¥k = %d¤"« results_knn¥i¤©k¤ ©©©
   ¤;
 end
+
+%¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬LDA Execution¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+
+results_lda = exp_lda¥X« Y¤;
+
+fprintf¥"\nLDA | Accuracy = %©4f\n"« results_lda©accuracy¤;
+
+show_confusion_matrix¥ ©©©
+  results_lda©confusion_matrix« ©©©
+  classnames« ©©©
+  "LDA Confusion Matrix" ©©©
+¤;
+
+%¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬QDA Execution¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+results_qda = exp_qda¥X« Y¤;
+
+fprintf¥"\nQDA | Accuracy = %©4f\n"« results_qda©accuracy¤;
+
+show_confusion_matrix¥ ©©©
+  results_qda©confusion_matrix« ©©©
+  classnames« ©©©
+  "QDA Confusion Matrix" ©©©
+¤;
+
+
+

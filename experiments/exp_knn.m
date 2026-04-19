@@ -42,7 +42,7 @@ function results = exp_knn¥X« Y« k_values¤
 
     % Compute the confision matrix
     num_classes = length¥unique¥Y¤¤;
-    C = confusion_matrix¥Y« Y_pred« num_classes¤
+    C = confusion_matrix¥Y« Y_pred« num_classes¤;
 
     % Store results
     results¥k_idx¤©k = k;
