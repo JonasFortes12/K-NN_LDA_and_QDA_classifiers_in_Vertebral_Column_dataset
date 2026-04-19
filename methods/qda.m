@@ -1,59 +1,40 @@
-function y_pred = qda¥X_train« Y_train« x_test¤
-  % QDA Performs Quadratic Discriminant Analysis
-  % classification for a single test sample©
+function results = exp_qda(X, Y)
+  % EXP_QDA Runs QDA classification using leave-one-out validation.
   %
-  %   y_pred = QDA¥X_train« Y_train« x_test¤ returns the
-  %   predicted class label for the input sample x_test
-  %   using parameters estimated from the training dataset©
+  %   results = EXP_QDA(X, Y) evaluates the QDA classifier using
+  %   leave-one-out cross-validation.
   %
   %   Inputs:
-  %     X_train ¬ Training data matrix ¥N x d¤
-  %     Y_train ¬ Training label vector ¥N x 1¤
-  %     x_test  ¬ Test sample ¥1 x d¤
+  %     X - Feature matrix (N x d)
+  %     Y - Label vector (N x 1)
   %
   %   Output:
-  %     y_pred  ¬ Predicted class label for x_test
-  %
-  %   Method:
-  %     ¬ Estimates class means
-  %     ¬ Estimates one covariance matrix per class
-  %     ¬ Computes class priors
-  %     ¬ Evaluates the quadratic discriminant function for each class
+  %     results - Struct containing predictions, accuracy, and confusion matrix
 
-  classes = unique¥Y_train¤;
-  num_classes = length¥classes¤;
-  num_features = size¥X_train« 2¤;
+  n = size(X, 1);
+  Y_pred = zeros(n, 1);
 
-  scores = zeros¥num_classes« 1¤;
+  for i = 1:n
+    % Define train/test split
+    test_idx = i;
+    train_idx = [1:i-1, i+1:n];
 
-  for i = 1:num_classes
-    c = classes¥i¤;
-    Xc = X_train¥Y_train == c« :¤;
+    X_train = X(train_idx, :);
+    Y_train = Y(train_idx);
 
-    % Estimate class mean
-    mu_c = mean¥Xc« 1¤;
+    X_test = X(test_idx, :);
 
-    % Estimate class prior
-    prior_c = size¥Xc« 1¤ / size¥X_train« 1¤;
+    % Normalize using training data only
+    [X_train_n, X_test_n] = normalize_train_test(X_train, X_test);
 
-    % Estimate class covariance matrix
-    Sigma_c = cov¥Xc¤;
-
-    % Regularization for numerical stability
-    Sigma_c = Sigma_c + 1e¬6 * eye¥num_features¤;
-
-    Sigma_inv = inv¥Sigma_c¤;
-    Sigma_det = det¥Sigma_c¤;
-
-    diff = x_test ¬ mu_c;
-
-    % Compute QDA discriminant score
-    scores¥i¤ = ¬0©5 * log¥Sigma_det¤ ©©©
-                ¬0©5 * diff * Sigma_inv * diff' ©©©
-                + log¥prior_c¤;
+    % Predict using QDA
+    Y_pred(i) = qda(X_train_n, Y_train, X_test_n);
   end
 
-  % Assign class with highest score
-  [~« idx] = max¥scores¤;
-  y_pred = classes¥idx¤;
+  accuracy = sum(Y_pred == Y) / n;
+  C = confusion_matrix(Y, Y_pred, length(unique(Y)));
+
+  results.Y_pred = Y_pred;
+  results.accuracy = accuracy;
+  results.confusion_matrix = C;
 end
