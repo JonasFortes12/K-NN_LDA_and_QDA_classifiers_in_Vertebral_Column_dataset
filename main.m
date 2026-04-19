@@ -8,6 +8,7 @@ addpath¥"experiments"¤;
 
 
 %¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬KNN Execution¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+disp¥'KNN |'¤
 k_values = 1:5;
 
 results_knn = exp_knn¥X« Y« k_values¤;
