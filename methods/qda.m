@@ -1,40 +1,47 @@
-function results = exp_qda(X, Y)
-  % EXP_QDA Runs QDA classification using leave-one-out validation.
+function y_pred = qda(X_train, Y_train, x_test)
+  % QDA Performs Quadratic Discriminant Analysis classification
+  % for a single test sample.
   %
-  %   results = EXP_QDA(X, Y) evaluates the QDA classifier using
-  %   leave-one-out cross-validation.
+  %   y_pred = QDA(X_train, Y_train, x_test) returns the predicted class
+  %   label for the input sample x_test using parameters estimated from
+  %   the training dataset.
   %
   %   Inputs:
-  %     X - Feature matrix (N x d)
-  %     Y - Label vector (N x 1)
+  %     X_train - Training data matrix (N x d)
+  %     Y_train - Training label vector (N x 1)
+  %     x_test  - Test sample (1 x d)
   %
   %   Output:
-  %     results - Struct containing predictions, accuracy, and confusion matrix
+  %     y_pred  - Predicted class label for x_test
 
-  n = size(X, 1);
-  Y_pred = zeros(n, 1);
+  classes = unique(Y_train);
+  num_classes = length(classes);
+  num_features = size(X_train, 2);
 
-  for i = 1:n
-    % Define train/test split
-    test_idx = i;
-    train_idx = [1:i-1, i+1:n];
+  scores = zeros(num_classes, 1);
 
-    X_train = X(train_idx, :);
-    Y_train = Y(train_idx);
+  for i = 1:num_classes
+    c = classes(i);
+    Xc = X_train(Y_train == c, :);
 
-    X_test = X(test_idx, :);
+    % Estimate class mean
+    mu = mean(Xc, 1);
 
-    % Normalize using training data only
-    [X_train_n, X_test_n] = normalize_train_test(X_train, X_test);
+    % Estimate class covariance matrix
+    Sigma = cov(Xc);
 
-    % Predict using QDA
-    Y_pred(i) = qda(X_train_n, Y_train, X_test_n);
+    % Regularization for numerical stability
+    Sigma = Sigma + 1e-6 * eye(num_features);
+
+    prior = size(Xc, 1) / size(X_train, 1);
+
+    diff = x_test - mu;
+
+    scores(i) = -0.5 * log(det(Sigma)) ...
+                -0.5 * diff * inv(Sigma) * diff' ...
+                + log(prior);
   end
 
-  accuracy = sum(Y_pred == Y) / n;
-  C = confusion_matrix(Y, Y_pred, length(unique(Y)));
-
-  results.Y_pred = Y_pred;
-  results.accuracy = accuracy;
-  results.confusion_matrix = C;
+  [~, idx] = max(scores);
+  y_pred = classes(idx);
 end
